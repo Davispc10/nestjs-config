@@ -1,0 +1,28 @@
+version: 2.1
+
+jobs:
+  unit_tests:
+    docker:
+      - image: cimg/node:20.13.1
+    resource_class: medium
+    environment:
+      NODE_ENV: env
+    steps:
+      - checkout
+      - restore_cache:
+          key: cons-deps-{{ checksum "package.json" }}
+      - run:
+          name: Install project dependencies
+          command: pnpm
+      - save_cache:
+          paths:
+            - node_modules
+          key: cons-deps-{{ checksum "package.json" }}
+      - run:
+          name: Run unit tests
+          command: pnpm test
+
+workflows:
+  tests:
+    jobs:
+      - unit_tests
